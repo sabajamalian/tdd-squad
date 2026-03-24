@@ -1,27 +1,11 @@
 # TDD Squad
 
-Test-Driven Development workflow encoded as a [Squad](https://github.com/bradygaster/Squad) agent team. Three AI agents enforce the Red-Green-Refactor cycle.
+Test-Driven Development workflow encoded as [GitHub Copilot custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents). Three AI agents enforce the Red-Green-Refactor cycle directly in Copilot Chat.
 
 ## Prerequisites
 
-- Node.js >= 22.5.0 (required for `node:sqlite` used by Copilot CLI)
+- Node.js >= 18
 - npm >= 10.x
-- GitHub Copilot CLI installed and authenticated
-
-### Verify
-
-```bash
-node --version    # v22.5.0 or higher
-npm --version     # 10.x or higher
-copilot --version # confirm Copilot CLI is available
-```
-
-### Install GitHub Copilot CLI (if not installed)
-
-```bash
-npm install -g @github/copilot
-copilot login
-```
 
 ---
 
@@ -35,68 +19,65 @@ npm install
 
 ---
 
-## Running
+## Usage
 
-### Via npm (CLI mode)
-
-Pass a feature description as an argument:
+### 1. Generate agents in your project
 
 ```bash
-npm start -- "Add email validation to the User class"
-npm start -- "Implement a discount calculator for orders"
+# Generate agents in the current directory
+npm start
+
+# Generate agents in another repository
+npm start -- ~/code/my-project
 ```
 
-### Via npx (without global install)
+This creates four `.github/agents/*.agent.md` files in the target repository:
 
-```bash
-npx tsx index.ts "Add email validation to the User class"
-```
+| File | Agent | Role |
+|------|-------|------|
+| `tdd-squad.agent.md` | `@tdd-squad` | Orchestrator — runs the full Red → Green → Blue cycle |
+| `red.agent.md` | `@red` | 🔴 Writes failing tests |
+| `green.agent.md` | `@green` | 🟢 Implements minimum code to pass tests |
+| `blue.agent.md` | `@blue` | 🔵 Refactors for quality |
 
-### Via GitHub Copilot agent mode
+### 2. Use the agents in GitHub Copilot Chat
 
-Load the squad config directly in Copilot:
-
-```bash
-copilot --agent squad
-```
-
-Then type your feature request in the Copilot chat:
+Open the target repo in VS Code and use the agents:
 
 ```
-Add email validation to the User class
+@tdd-squad Add email validation to the User class
 ```
 
-### Address agents individually
+The orchestrator will run Red → (human review) → Green → Blue automatically.
 
-```bash
-# Red phase only -- write failing tests
-npm start -- "Red, write tests for the password reset flow"
+Or address agents individually:
 
-# Green phase only -- make tests pass
-npm start -- "Green, make the tests pass"
-
-# Blue phase only -- refactor
-npm start -- "Blue, clean up the auth module"
 ```
+@red Write tests for the password reset flow
+@green Make the tests pass
+@blue Clean up the auth module
+```
+
+Because these are Copilot Chat agents, **conversation state is maintained** — you can say "proceed" or "make changes" and the agent remembers the full context.
 
 ---
 
 ## Workflow
 
 ```
-Red (write failing tests)
-  |
-  v
-Human Gate (optional, configurable)
-  |
-  v
-Green (minimum code to pass tests)
-  |
-  v
-Blue (refactor, keep tests green)
-  |
-  v
-Cycle complete
+🔴 Red (write failing tests)
+  │
+  ▼
+⏸  Human Gate — review tests before proceeding
+  │
+  ▼
+🟢 Green (minimum code to pass tests)
+  │
+  ▼
+🔵 Blue (refactor, keep tests green)
+  │
+  ▼
+✅ Cycle complete
 ```
 
 | Agent | Phase | Role |
@@ -107,92 +88,21 @@ Cycle complete
 
 ---
 
-## Configuration
-
-All configuration lives in `squad.config.ts`.
-
-### Human Gate
-
-Controls whether the workflow pauses between Red and Green for manual review:
-
-```typescript
-// squad.config.ts
-const humanGate = true;   // pause after Red -- review tests before proceeding
-const humanGate = false;  // auto-proceed -- Red -> Green -> Blue without stopping
-```
-
-### Model Selection
-
-```typescript
-const defaults = defineDefaults({
-  model: {
-    preferred: 'claude-sonnet-4.5',
-    fallback: 'claude-haiku-4.5'
-  }
-});
-```
-
-### Routing Patterns
-
-Keywords that trigger specific agents:
-
-| Pattern | Agent(s) | Phase |
-|---------|----------|-------|
-| `red`, `write test`, `failing test`, `test first` | Red | Single |
-| `green`, `make pass`, `implement`, `fix the test` | Green | Single |
-| `blue`, `refactor`, `clean up`, `improve` | Blue | Single |
-| `tdd`, `full cycle`, `add feature`, `new feature` | Red -> Green -> Blue | Full |
-
----
-
 ## Project Structure
 
 ```
 tdd-squad/
-  index.ts           # CLI entry point, connects to Copilot and runs the TDD cycle
-  squad.config.ts    # Agent definitions, routing rules, team config
+  index.ts           # CLI entry point — generates .github/agents/ files
+  generate.ts        # Agent file generator with agent definitions
   package.json
   tsconfig.json
 ```
 
 ---
 
-## Tech Stack
+## Re-running
 
-- TypeScript (ES2022, ESNext modules)
-- [Squad SDK](https://github.com/bradygaster/Squad) (`@bradygaster/squad-sdk`)
-- `tsx` for direct TypeScript execution
-- GitHub Copilot CLI as the AI backend
-
----
-
-## Troubleshooting
-
-### Connection refused
-
-```
-Could not connect to the Copilot CLI.
-```
-
-Fix:
-
-```bash
-npm install -g @github/copilot
-copilot auth login
-npm start -- "your feature description"
-```
-
-### Command not found: copilot
-
-```bash
-npm install -g @github/copilot
-```
-
-### TypeScript errors
-
-```bash
-npx tsc --noEmit
-```
+Running `npm start` again is safe — existing agent files are skipped, not overwritten. To update agents, delete the files you want to regenerate and run again.
 
 ---
 

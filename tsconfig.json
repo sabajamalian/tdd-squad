@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "outDir": "dist"
   },
-  "include": ["squad.config.ts", "index.ts"]
+  "include": ["index.ts", "generate.ts"]
 }
