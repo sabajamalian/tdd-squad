@@ -1,6 +1,20 @@
 # TDD Squad
 
-Test-Driven Development workflow encoded as a [Squad SDK](https://github.com/bradygaster/squad) team configuration. Generates a `squad.config.ts` using Squad's SDK-First Mode with Red, Green, and Blue agents that enforce the TDD cycle in GitHub Copilot.
+TDD Squad is a multi-agent Test-Driven Development pipeline for GitHub Copilot, built with the [Squad SDK](https://github.com/bradygaster/squad). It encodes the classic Red-Green-Blue TDD cycle as a team of cooperating AI agents: **Red** writes failing tests, **Green** implements the minimum code to make them pass, and **Blue** refactors while keeping all tests green. A **Scribe** agent silently logs decisions and session history.
+
+What makes it powerful is **cross-phase overlap** — agents work in parallel on different files as each stage completes, so you don't wait for the entire Red phase to finish before Green starts. You describe a feature in plain language and the squad coordinates the full TDD pipeline automatically.
+
+### Prompt
+
+![Prompt](images/prompt.png)
+
+The user asks the squad to create three Python classes for unit conversions (distance, volume, temperature). The coordinator plans a 4-turn pipeline where Red, Green, and Blue overlap across files — as soon as Red finishes tests for the first file, Green starts implementing it while Red moves on to the next.
+
+### Result
+
+![Result](images/result.png)
+
+---
 
 ## Prerequisites
 
