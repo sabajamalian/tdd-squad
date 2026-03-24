@@ -1,11 +1,12 @@
 # TDD Squad
 
-Test-Driven Development workflow encoded as [GitHub Copilot custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents). Three AI agents enforce the Red-Green-Refactor cycle directly in Copilot Chat.
+Test-Driven Development workflow encoded as a [Squad](https://github.com/bradygaster/squad) team. Three AI agents enforce the Red-Green-Refactor cycle directly in GitHub Copilot.
 
 ## Prerequisites
 
 - Node.js >= 18
 - npm >= 10.x
+- [Squad CLI](https://github.com/bradygaster/squad) installed (`npm install -g @bradygaster/squad-cli`)
 
 ---
 
@@ -21,34 +22,47 @@ npm install
 
 ## Usage
 
-### 1. Generate agents in your project
+### 1. Generate the Squad in your project
 
 ```bash
-# Generate agents in the current directory
+# Generate in the current directory
 npm start
 
-# Generate agents in another repository
+# Generate in another repository
 npm start -- ~/code/my-project
 ```
 
-This creates four `.github/agents/*.agent.md` files in the target repository:
+This creates the full Squad structure in the target repository:
 
-| File | Agent | Role |
-|------|-------|------|
-| `tdd-squad.agent.md` | `@tdd-squad` | Orchestrator — runs the full Red → Green → Blue cycle |
-| `red.agent.md` | `@red` | 🔴 Writes failing tests |
-| `green.agent.md` | `@green` | 🟢 Implements minimum code to pass tests |
-| `blue.agent.md` | `@blue` | 🔵 Refactors for quality |
+```
+my-project/
+  squad.agent.md                    # Copilot agent entry point
+  .squad/
+    team.md                         # Team roster (Red, Green, Blue, Scribe)
+    routing.md                      # Work routing rules
+    ceremonies.md                   # TDD ceremonies (test review gate, retro)
+    decisions.md                    # Shared team brain
+    agents/
+      red/charter.md + history.md   # 🔴 Test Writer
+      green/charter.md + history.md # 🟢 Implementer
+      blue/charter.md + history.md  # 🔵 Refactorer
+      scribe/charter.md            # 📋 Session Logger
+    decisions/inbox/                # Decision drop-box for agents
+    orchestration-log/              # Agent work logs
+    skills/                         # Reusable learnings
+    identity/                       # Team identity
+    log/                            # Session logs
+```
 
-### 2. Use the agents in GitHub Copilot Chat
+### 2. Use the Squad in GitHub Copilot
 
-Open the target repo in VS Code and use the agents:
+Open the target repo in VS Code, select the Squad agent, and describe a feature:
 
 ```
 @tdd-squad Add email validation to the User class
 ```
 
-The orchestrator will run Red → (human review) → Green → Blue automatically.
+The coordinator runs the full TDD cycle: Red → (human review) → Green → Blue.
 
 Or address agents individually:
 
@@ -58,7 +72,7 @@ Or address agents individually:
 @blue Clean up the auth module
 ```
 
-Because these are Copilot Chat agents, **conversation state is maintained** — you can say "proceed" or "make changes" and the agent remembers the full context.
+The Squad maintains full conversation state — agents learn your codebase, record decisions, and build knowledge across sessions.
 
 ---
 
@@ -85,6 +99,7 @@ Because these are Copilot Chat agents, **conversation state is maintained** — 
 | Red | Write failing tests | Creates test cases before implementation exists |
 | Green | Make tests pass | Implements minimum code -- nothing more |
 | Blue | Refactor | Improves code quality, all tests must stay green |
+| Scribe | Logging | Records decisions and session history (silent) |
 
 ---
 
@@ -92,8 +107,8 @@ Because these are Copilot Chat agents, **conversation state is maintained** — 
 
 ```
 tdd-squad/
-  index.ts           # CLI entry point — generates .github/agents/ files
-  generate.ts        # Agent file generator with agent definitions
+  index.ts           # CLI entry point — runs the generator
+  generate.ts        # Squad file generator with agent definitions
   package.json
   tsconfig.json
 ```
@@ -102,7 +117,7 @@ tdd-squad/
 
 ## Re-running
 
-Running `npm start` again is safe — existing agent files are skipped, not overwritten. To update agents, delete the files you want to regenerate and run again.
+Running `npm start` again is safe — existing files are skipped, not overwritten. To update files, delete the ones you want to regenerate and run again.
 
 ---
 
