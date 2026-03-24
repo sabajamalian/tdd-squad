@@ -4,7 +4,7 @@ Test-Driven Development workflow encoded as a [Squad SDK](https://github.com/bra
 
 ## Prerequisites
 
-- Node.js >= 18
+- Node.js >= 22.5
 - npm >= 10.x
 - [Squad CLI](https://github.com/bradygaster/squad) installed (`npm install -g @bradygaster/squad-cli`)
 
@@ -34,15 +34,16 @@ npm start -- ~/code/my-project
 
 This creates a `squad.config.ts` in the target directory using the Squad SDK builders (`defineSquad`, `defineTeam`, `defineAgent`, `defineRouting`).
 
-### 2. Install the Squad SDK and build
+### 2. Install the Squad SDK, init, and build
 
 ```bash
 cd ~/code/my-project
 npm install @bradygaster/squad-sdk
+squad init
 squad build
 ```
 
-`squad build` generates the `.squad/` directory (team.md, routing.md, agent charters, etc.) from the config.
+`squad init` scaffolds the Squad in your project (creates `squad.agent.md`, workflows, identity, etc.). `squad build` then generates the `.squad/` agent charters and governance files from your `squad.config.ts`.
 
 ### 3. Use the Squad in GitHub Copilot
 
