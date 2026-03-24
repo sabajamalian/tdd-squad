@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Generates GitHub Copilot custom agents for Test-Driven Development — Red (write failing tests) → Green (make tests pass) → Blue (refactor for quality).",
+  "description": "Generates a squad.config.ts (Squad SDK-First Mode) for Test-Driven Development — Red (write failing tests) → Green (make tests pass) → Blue (refactor for quality).",
   "scripts": {
     "start": "npx tsx index.ts"
   },
