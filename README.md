@@ -4,14 +4,14 @@ Test-Driven Development workflow encoded as a [Squad](https://github.com/bradyga
 
 ## Prerequisites
 
-- Node.js >= 20.x
+- Node.js >= 22.5.0 (required for `node:sqlite` used by Copilot CLI)
 - npm >= 10.x
 - GitHub Copilot CLI installed and authenticated
 
 ### Verify
 
 ```bash
-node --version    # v20.x or higher
+node --version    # v22.5.0 or higher
 npm --version     # 10.x or higher
 copilot --version # confirm Copilot CLI is available
 ```
@@ -20,7 +20,7 @@ copilot --version # confirm Copilot CLI is available
 
 ```bash
 npm install -g @github/copilot
-copilot auth login
+copilot login
 ```
 
 ---
