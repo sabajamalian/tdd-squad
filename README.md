@@ -1,91 +1,200 @@
-# TDD Squad 🔴🟢🔵
+# TDD Squad
 
-Test-Driven Development workflow encoded as a [Squad](https://github.com/bradygaster/Squad) agent team.
+Test-Driven Development workflow encoded as a [Squad](https://github.com/bradygaster/Squad) agent team. Three AI agents enforce the Red-Green-Refactor cycle.
 
-Red → Green → Refactor, guided by AI.
+## Prerequisites
 
-## Quick Start
+- Node.js >= 20.x
+- npm >= 10.x
+- GitHub Copilot CLI installed and authenticated
+
+### Verify
 
 ```bash
-npm install
-npm start
+node --version    # v20.x or higher
+npm --version     # 10.x or higher
+copilot --version # confirm Copilot CLI is available
 ```
 
-Then in GitHub Copilot:
+### Install GitHub Copilot CLI (if not installed)
+
+```bash
+npm install -g @github/copilot
+copilot auth login
+```
+
+---
+
+## Setup
+
+```bash
+git clone <repo-url>
+cd tdd-squad
+npm install
+```
+
+---
+
+## Running
+
+### Via npm (CLI mode)
+
+Pass a feature description as an argument:
+
+```bash
+npm start -- "Add email validation to the User class"
+npm start -- "Implement a discount calculator for orders"
+```
+
+### Via npx (without global install)
+
+```bash
+npx tsx index.ts "Add email validation to the User class"
+```
+
+### Via GitHub Copilot agent mode
+
+Load the squad config directly in Copilot:
+
+```bash
+copilot --agent squad
+```
+
+Then type your feature request in the Copilot chat:
 
 ```
 Add email validation to the User class
 ```
 
-## The Flow
+### Address agents individually
 
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   🔴 RED        │────▶│   🟢 GREEN      │────▶│   🔵 BLUE       │
-│   Test Writer   │     │   Implementer   │     │   Refactorer    │
-│                 │     │                 │     │                 │
-│ Write failing   │     │ Make tests      │     │ Clean up code   │
-│ tests first     │     │ pass (minimum)  │     │ keep tests green│
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-         │                                                │
-         ▼                                                │
-   ⏸️ Human Gate                                          │
-   (configurable)                              ✅ Cycle complete
+```bash
+# Red phase only -- write failing tests
+npm start -- "Red, write tests for the password reset flow"
+
+# Green phase only -- make tests pass
+npm start -- "Green, make the tests pass"
+
+# Blue phase only -- refactor
+npm start -- "Blue, clean up the auth module"
 ```
 
-## Agents
+---
 
-| Agent | Phase | What it does |
-|-------|-------|--------------|
-| 🔴 Red | Write failing tests | Creates comprehensive test cases BEFORE any implementation exists |
-| 🟢 Green | Make tests pass | Implements the minimum code to make tests green — nothing more |
-| 🔵 Blue | Refactor | Improves code quality while keeping all tests passing |
-
-## Human Gate
-
-The `humanGate` flag in `squad.config.ts` controls whether the workflow pauses between Red and Green:
-
-```typescript
-const humanGate = true;  // Pause after Red — review failing tests before proceeding
-const humanGate = false; // Auto-proceed — Red → Green → Blue without stopping
-```
-
-When enabled, Red presents the failing test results and waits for your approval before Green begins implementation. This prevents wasted effort if the tests don't match your requirements.
-
-## Example Commands
+## Workflow
 
 ```
-# Full TDD cycle
-"Add a discount calculator to the Order class"
-
-# Address agents directly
-"Red, write tests for the password reset flow"
-"Green, make the tests pass"
-"Blue, clean up the auth module"
-
-# Refactoring only
-"Blue, refactor the payment service"
+Red (write failing tests)
+  |
+  v
+Human Gate (optional, configurable)
+  |
+  v
+Green (minimum code to pass tests)
+  |
+  v
+Blue (refactor, keep tests green)
+  |
+  v
+Cycle complete
 ```
+
+| Agent | Phase | Role |
+|-------|-------|------|
+| Red | Write failing tests | Creates test cases before implementation exists |
+| Green | Make tests pass | Implements minimum code -- nothing more |
+| Blue | Refactor | Improves code quality, all tests must stay green |
+
+---
 
 ## Configuration
 
-Edit `squad.config.ts` to customize:
+All configuration lives in `squad.config.ts`.
 
-- **`humanGate`** — `true`/`false` to enable/disable the review gate between Red and Green
-- **Agent charters** — adjust test-writing standards, implementation constraints, or refactoring priorities
-- **Model selection** — change the preferred model in `defaults`
-- **Routing patterns** — modify which keywords trigger which agents
+### Human Gate
 
-## Why This Pattern?
+Controls whether the workflow pauses between Red and Green for manual review:
 
-TDD discipline is hard to maintain. This squad enforces it structurally:
+```typescript
+// squad.config.ts
+const humanGate = true;   // pause after Red -- review tests before proceeding
+const humanGate = false;  // auto-proceed -- Red -> Green -> Blue without stopping
+```
 
-- **Red can't implement.** Tests must be written before code exists.
-- **Green can't over-engineer.** Minimum code to pass, nothing more.
-- **Blue can't change behavior.** Refactoring must keep tests green.
-- **The human gate** (when enabled) catches requirement mismatches early.
+### Model Selection
 
-Each agent has a narrowly scoped responsibility with explicit constraints, making it impossible to skip steps or cut corners.
+```typescript
+const defaults = defineDefaults({
+  model: {
+    preferred: 'claude-sonnet-4.5',
+    fallback: 'claude-haiku-4.5'
+  }
+});
+```
+
+### Routing Patterns
+
+Keywords that trigger specific agents:
+
+| Pattern | Agent(s) | Phase |
+|---------|----------|-------|
+| `red`, `write test`, `failing test`, `test first` | Red | Single |
+| `green`, `make pass`, `implement`, `fix the test` | Green | Single |
+| `blue`, `refactor`, `clean up`, `improve` | Blue | Single |
+| `tdd`, `full cycle`, `add feature`, `new feature` | Red -> Green -> Blue | Full |
+
+---
+
+## Project Structure
+
+```
+tdd-squad/
+  index.ts           # CLI entry point, connects to Copilot and runs the TDD cycle
+  squad.config.ts    # Agent definitions, routing rules, team config
+  package.json
+  tsconfig.json
+```
+
+---
+
+## Tech Stack
+
+- TypeScript (ES2022, ESNext modules)
+- [Squad SDK](https://github.com/bradygaster/Squad) (`@bradygaster/squad-sdk`)
+- `tsx` for direct TypeScript execution
+- GitHub Copilot CLI as the AI backend
+
+---
+
+## Troubleshooting
+
+### Connection refused
+
+```
+Could not connect to the Copilot CLI.
+```
+
+Fix:
+
+```bash
+npm install -g @github/copilot
+copilot auth login
+npm start -- "your feature description"
+```
+
+### Command not found: copilot
+
+```bash
+npm install -g @github/copilot
+```
+
+### TypeScript errors
+
+```bash
+npx tsc --noEmit
+```
+
+---
 
 ## License
 
