@@ -10,6 +10,8 @@ What makes it powerful is **cross-phase overlap** — agents work in parallel on
 
 The user asks the squad to create three Python classes for unit conversions (distance, volume, temperature). The coordinator plans a 4-turn pipeline where Red, Green, and Blue overlap across files — as soon as Red finishes tests for the first file, Green starts implementing it while Red moves on to the next.
 
+> I want you all to work in parallel and create three Python classes, each responsible for unit conversions. One is for distance units conversions, second is volume units of measurements conversion, and third one is temperature, units of conversions. Make it as comprehensive as you can. Forget about the human approval gate, and consider them pre-approved. When red is done with the first file, have green start implementing the class for that file so that the agents can work in parallel as they make progress.
+
 ### Result
 
 ![Result](images/result.png)
